@@ -1,0 +1,29 @@
+# A simple action usage
+name: Build Kernel spes 4.19 ksu
+on:
+  workflow_dispatch:
+
+jobs:
+  Build-Kernel:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Build Kernel spes 4.19 ksu
+        uses: dabao1955/kernel_build_action@main
+        with:
+          kernel-url: https://github.com/muralivijay/kernel_xiaomi_spes/
+          kernel-dir: msm-4.19
+          kernel-branch: main-ksun-susfs
+          config: vendor/spes-perf_defconfig
+          arch: arm64
+          aosp-gcc: true
+          aosp-clang: true
+          ksu: false
+          ksu-version: main
+          aosp-clang-version: r547379
+          disable-lto: true
+          anykernel3: true
