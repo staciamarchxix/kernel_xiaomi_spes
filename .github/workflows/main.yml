@@ -1,5 +1,5 @@
 # A simple action usage
-name: Build Kernel spes 4.19 ksu
+name: Build Kernel spes 4.19 ksun-susfs
 on:
   workflow_dispatch:
   push:
@@ -15,7 +15,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Build Kernel spes 4.19 ksu
+      - name: Build Kernel spes 4.19 ksun-susfs
         uses: dabao1955/kernel_build_action@main
         with:
           kernel-url: https://github.com/muralivijay/kernel_xiaomi_spes/
@@ -29,4 +29,5 @@ jobs:
           ksu-url: https://github.com/muralivijay/KernelSU-Next
           aosp-clang-version: r547379
           anykernel3: true
+          anykernel3-url: https://github.com/muralivijay/AnyKernel3
           extra-cmd: LLVM=1 LLVM_IAS=1
