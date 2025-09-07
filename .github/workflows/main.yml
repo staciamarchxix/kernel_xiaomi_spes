@@ -2,6 +2,9 @@
 name: Build Kernel spes 4.19 ksu
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main-ksun-susfs-test
 
 jobs:
   Build-Kernel:
@@ -17,7 +20,7 @@ jobs:
         with:
           kernel-url: https://github.com/muralivijay/kernel_xiaomi_spes/
           kernel-dir: msm-4.19
-          kernel-branch: main-ksun-susfs
+          kernel-branch: main-ksun-susfs-test
           config: vendor/spes-perf_defconfig
           arch: arm64
           aosp-gcc: true
