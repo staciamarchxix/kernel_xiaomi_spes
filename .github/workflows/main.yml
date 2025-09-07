@@ -27,5 +27,4 @@ jobs:
           ksu-url: https://github.com/muralivijay/KernelSU-Next
           ksu-version: next-susfs
           aosp-clang-version: r547379
-          disable-lto: true
           anykernel3: true
