@@ -28,3 +28,4 @@ jobs:
           ksu-version: next-susfs
           aosp-clang-version: r547379
           anykernel3: true
+          extra-cmd: LLVM=1 LLVM_IAS=1
