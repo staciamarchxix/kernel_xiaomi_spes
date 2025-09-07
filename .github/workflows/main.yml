@@ -25,10 +25,8 @@ jobs:
           arch: arm64
           aosp-gcc: true
           aosp-clang: true
-          ksu: true
           ksu-other: true
           ksu-url: https://github.com/muralivijay/KernelSU-Next
-          ksu-version: next-susfs
           aosp-clang-version: r547379
           anykernel3: true
           extra-cmd: LLVM=1 LLVM_IAS=1
