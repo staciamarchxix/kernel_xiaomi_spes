@@ -651,46 +651,69 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	return rc;
 }
 
-static void cam_sensor_print_init_settings(struct cam_sensor_ctrl_t *s_ctrl)
+static void cam_sensor_print_camx_init_settings(struct cam_sensor_ctrl_t *s_ctrl)
 {
-	struct i2c_settings_list *i2c_list;
-	int i;
+    struct i2c_settings_list *i2c_list;
+    int i;
+    const char *operation;
 
-	if (!s_ctrl->i2c_data.init_settings.is_settings_valid) {
-		CAM_ERR(CAM_SENSOR, "No valid init settings");
-		return;
-	}
+    if (!s_ctrl->i2c_data.init_settings.is_settings_valid) {
+        CAM_ERR(CAM_SENSOR, "Sensor %d: No valid init settings", s_ctrl->soc_info.index);
+        return;
+    }
 
-	CAM_ERR(CAM_SENSOR, "====== CAMERA SENSOR INIT REGISTERS ======");
+    // Print sensor identification
+    CAM_ERR(CAM_SENSOR, "<!-- ===== SENSOR %d INIT SETTINGS ===== -->", s_ctrl->soc_info.index);
+    CAM_ERR(CAM_SENSOR, "<!-- Sensor Slot: %d -->", s_ctrl->soc_info.index);
+    CAM_ERR(CAM_SENSOR, "<!-- I2C Slave Addr: 0x%02X -->",
+             s_ctrl->sensordata->slave_info.sensor_slave_addr);
+    CAM_ERR(CAM_SENSOR, "<!-- Sensor ID: 0x%04X -->",
+             s_ctrl->sensordata->slave_info.sensor_id);
+    CAM_ERR(CAM_SENSOR, "<!-- Sensor State: %d -->", s_ctrl->sensor_state);
 
-	list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.init_settings.list_head), list) {
-		switch (i2c_list->op_code) {
-		case CAM_SENSOR_I2C_WRITE_RANDOM:
-			CAM_INFO(CAM_SENSOR, "--- WRITE_RANDOM (%d registers) ---",
-				i2c_list->i2c_settings.size);
-			break;
-		case CAM_SENSOR_I2C_WRITE_SEQ:
-			CAM_INFO(CAM_SENSOR, "--- WRITE_SEQUENTIAL (%d registers) ---",
-				i2c_list->i2c_settings.size);
-			break;
-		case CAM_SENSOR_I2C_WRITE_BURST:
-			CAM_ERR(CAM_SENSOR, "--- WRITE_BURST (%d registers) ---",
-				i2c_list->i2c_settings.size);
-			break;
-		case CAM_SENSOR_I2C_POLL:
-			CAM_ERR(CAM_SENSOR, "--- POLL (%d registers) ---",
-				i2c_list->i2c_settings.size);
-			break;
-		}
+    CAM_ERR(CAM_SENSOR, "<initSettings>");
 
-		for (i = 0; i < i2c_list->i2c_settings.size; i++) {
-			CAM_ERR(CAM_SENSOR, "0x%04X: 0x%04X",
-				i2c_list->i2c_settings.reg_setting[i].reg_addr,
-				i2c_list->i2c_settings.reg_setting[i].reg_data);
-		}
+    list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.init_settings.list_head), list) {
+        for (i = 0; i < i2c_list->i2c_settings.size; i++) {
+            CAM_ERR(CAM_SENSOR, "    <regSetting>");
+            CAM_ERR(CAM_SENSOR, "        <registerAddr>0x%04X</registerAddr>",
+                i2c_list->i2c_settings.reg_setting[i].reg_addr);
+            CAM_ERR(CAM_SENSOR, "        <registerData>0x%04X</registerData>",
+                i2c_list->i2c_settings.reg_setting[i].reg_data);
+            CAM_ERR(CAM_SENSOR, "        <regAddrType>%d</regAddrType>",
+                i2c_list->i2c_settings.addr_type);
+            CAM_ERR(CAM_SENSOR, "        <regDataType>%d</regDataType>",
+                i2c_list->i2c_settings.data_type);
 
-	CAM_ERR(CAM_SENSOR, "====== END INIT REGISTERS ======");
-	}
+            // Map to CamX operation names
+            operation = "WRITE";
+            switch (i2c_list->op_code) {
+            case CAM_SENSOR_I2C_WRITE_RANDOM:
+                operation = "WRITE";
+                break;
+            case CAM_SENSOR_I2C_WRITE_SEQ:
+                operation = "WRITE_BURST";
+                break;
+            case CAM_SENSOR_I2C_WRITE_BURST:
+                operation = "WRITE_BURST";
+                break;
+            case CAM_SENSOR_I2C_POLL:
+                operation = "PLL";
+                break;
+            default:
+                operation = "WRITE";
+                break;
+            }
+
+            CAM_ERR(CAM_SENSOR, "        <operation>%s</operation>", operation);
+            CAM_ERR(CAM_SENSOR, "        <delayUs>%d</delayUs>",
+                i2c_list->i2c_settings.reg_setting[i].delay * 1000);
+            CAM_ERR(CAM_SENSOR, "    </regSetting>");
+        }
+    }
+
+    CAM_ERR(CAM_SENSOR, "</initSettings>");
+    CAM_ERR(CAM_SENSOR, "<!-- ===== END SENSOR %d INIT SETTINGS ===== -->", s_ctrl->soc_info.index);
 }
 
 int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
@@ -990,8 +1013,8 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		if (s_ctrl->i2c_data.init_settings.is_settings_valid &&
 			(s_ctrl->i2c_data.init_settings.request_id == 0)) {
 
-		// PRINT INIT SETTINGS
-		cam_sensor_print_init_settings(s_ctrl);
+        	// PRINT IN CamX XML FORMAT
+        	cam_sensor_print_camx_init_settings(s_ctrl);
 
 			pkt_opcode =
 				CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG;
