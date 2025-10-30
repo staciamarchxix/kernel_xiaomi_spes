@@ -651,6 +651,48 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	return rc;
 }
 
+static void cam_sensor_print_init_settings(struct cam_sensor_ctrl_t *s_ctrl)
+{
+	struct i2c_settings_list *i2c_list;
+	int i;
+
+	if (!s_ctrl->i2c_data.init_settings.is_settings_valid) {
+		CAM_ERR(CAM_SENSOR, "No valid init settings");
+		return;
+	}
+
+	CAM_ERR(CAM_SENSOR, "====== CAMERA SENSOR INIT REGISTERS ======");
+
+	list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.init_settings.list_head), list) {
+		switch (i2c_list->op_code) {
+		case CAM_SENSOR_I2C_WRITE_RANDOM:
+			CAM_INFO(CAM_SENSOR, "--- WRITE_RANDOM (%d registers) ---",
+				i2c_list->i2c_settings.size);
+			break;
+		case CAM_SENSOR_I2C_WRITE_SEQ:
+			CAM_INFO(CAM_SENSOR, "--- WRITE_SEQUENTIAL (%d registers) ---",
+				i2c_list->i2c_settings.size);
+			break;
+		case CAM_SENSOR_I2C_WRITE_BURST:
+			CAM_ERR(CAM_SENSOR, "--- WRITE_BURST (%d registers) ---",
+				i2c_list->i2c_settings.size);
+			break;
+		case CAM_SENSOR_I2C_POLL:
+			CAM_ERR(CAM_SENSOR, "--- POLL (%d registers) ---",
+				i2c_list->i2c_settings.size);
+			break;
+		}
+
+		for (i = 0; i < i2c_list->i2c_settings.size; i++) {
+			CAM_ERR(CAM_SENSOR, "0x%04X: 0x%04X",
+				i2c_list->i2c_settings.reg_setting[i].reg_addr,
+				i2c_list->i2c_settings.reg_setting[i].reg_data);
+		}
+
+	CAM_ERR(CAM_SENSOR, "====== END INIT REGISTERS ======");
+	}
+}
+
 int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	void *arg)
 {
@@ -947,6 +989,9 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		}
 		if (s_ctrl->i2c_data.init_settings.is_settings_valid &&
 			(s_ctrl->i2c_data.init_settings.request_id == 0)) {
+
+		// PRINT INIT SETTINGS
+		cam_sensor_print_init_settings(s_ctrl);
 
 			pkt_opcode =
 				CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG;
