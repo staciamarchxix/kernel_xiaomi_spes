@@ -289,6 +289,15 @@ static int32_t cam_sensor_i2c_modes_util(
 	uint32_t i, size;
 
 	if (i2c_list->op_code == CAM_SENSOR_I2C_WRITE_RANDOM) {
+		for (i = 0; i < i2c_list->i2c_settings.size; i++) {
+			CAM_ERR(CAM_SENSOR,
+				"WRITE_RANDOM: addr: 0x%x, data: 0x%x, addr_type: %d, data_type: %d",
+				i2c_list->i2c_settings.reg_setting[i].reg_addr,
+				i2c_list->i2c_settings.reg_setting[i].reg_data,
+				i2c_list->i2c_settings.addr_type,
+				i2c_list->i2c_settings.data_type);
+		}
+
 		rc = camera_io_dev_write(io_master_info,
 			&(i2c_list->i2c_settings));
 		if (rc < 0) {
@@ -298,6 +307,19 @@ static int32_t cam_sensor_i2c_modes_util(
 			return rc;
 		}
 	} else if (i2c_list->op_code == CAM_SENSOR_I2C_WRITE_SEQ) {
+		// Add debug prints for sequential writes
+		CAM_ERR(CAM_SENSOR,
+			"WRITE_SEQ: start_addr: 0x%x, size: %d, addr_type: %d, data_type: %d",
+			i2c_list->i2c_settings.reg_setting[0].reg_addr,
+			i2c_list->i2c_settings.size,
+			i2c_list->i2c_settings.addr_type,
+			i2c_list->i2c_settings.data_type);
+
+		for (i = 0; i < i2c_list->i2c_settings.size; i++) {
+			CAM_ERR(CAM_SENSOR, "  Data[%d]: 0x%x", i,
+				i2c_list->i2c_settings.reg_setting[i].reg_data);
+		}
+
 		rc = camera_io_dev_write_continuous(
 			io_master_info,
 			&(i2c_list->i2c_settings),
@@ -309,6 +331,12 @@ static int32_t cam_sensor_i2c_modes_util(
 			return rc;
 		}
 	} else if (i2c_list->op_code == CAM_SENSOR_I2C_WRITE_BURST) {
+		// Similar prints for burst writes
+		CAM_ERR(CAM_SENSOR,
+			"WRITE_BURST: start_addr: 0x%x, size: %d",
+			i2c_list->i2c_settings.reg_setting[0].reg_addr,
+			i2c_list->i2c_settings.size);
+
 		rc = camera_io_dev_write_continuous(
 			io_master_info,
 			&(i2c_list->i2c_settings),
@@ -322,6 +350,13 @@ static int32_t cam_sensor_i2c_modes_util(
 	} else if (i2c_list->op_code == CAM_SENSOR_I2C_POLL) {
 		size = i2c_list->i2c_settings.size;
 		for (i = 0; i < size; i++) {
+			// Add debug prints for poll operations
+			CAM_ERR(CAM_SENSOR,
+				"POLL: addr: 0x%x, expected: 0x%x, mask: 0x%x",
+				i2c_list->i2c_settings.reg_setting[i].reg_addr,
+				i2c_list->i2c_settings.reg_setting[i].reg_data,
+				i2c_list->i2c_settings.reg_setting[i].data_mask);
+
 			rc = camera_io_dev_poll(
 			io_master_info,
 			i2c_list->i2c_settings.reg_setting[i].reg_addr,
@@ -627,6 +662,10 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 
 	slave_info = &(s_ctrl->sensordata->slave_info);
 
+// Add debug print
+	CAM_ERR(CAM_SENSOR, "Reading sensor ID from addr: 0x%x",
+		slave_info->sensor_id_reg_addr);
+
 	if (!slave_info) {
 		CAM_ERR(CAM_SENSOR, " failed: %pK",
 			 slave_info);
@@ -640,8 +679,12 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 		s_ctrl->sensor_probe_addr_type,
 		s_ctrl->sensor_probe_data_type);
 
-	CAM_DBG(CAM_SENSOR, "read id: 0x%x expected id 0x%x:",
-		chipid, slave_info->sensor_id);
+	// Enhanced debug print
+	CAM_ERR(CAM_SENSOR,
+		"Sensor ID read: 0x%x, expected: 0x%x, addr_type: %d, data_type: %d",
+		chipid, slave_info->sensor_id,
+		s_ctrl->sensor_probe_addr_type,
+		s_ctrl->sensor_probe_data_type);
 
 	if (cam_sensor_id_by_mask(s_ctrl, chipid) != slave_info->sensor_id) {
 		CAM_WARN(CAM_SENSOR, "read id: 0x%x expected id 0x%x:",
