@@ -123,8 +123,6 @@ static int cam_actuator_init_subdev(struct cam_actuator_ctrl_t *a_ctrl)
 		CAM_ACTUATOR_DEVICE_TYPE;
 	a_ctrl->v4l2_dev_str.token = a_ctrl;
 
-	CAM_ERR(CAM_ACTUATOR, "Actuator device type is: %d", CAM_ACTUATOR_DEVICE_TYPE);
-
 	rc = cam_register_subdev(&(a_ctrl->v4l2_dev_str));
 	if (rc)
 		CAM_ERR(CAM_SENSOR, "Fail with cam_register_subdev rc: %d", rc);
