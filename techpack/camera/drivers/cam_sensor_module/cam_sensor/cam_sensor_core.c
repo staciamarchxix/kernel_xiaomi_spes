@@ -1263,6 +1263,40 @@ int cam_sensor_power_down(struct cam_sensor_ctrl_t *s_ctrl)
 	return rc;
 }
 
+static void cam_sensor_print_i2c_settings(struct cam_sensor_ctrl_t *s_ctrl,
+                                         struct i2c_settings_list *i2c_list,
+                                         const char *op_type)
+{
+    int i;
+    uint32_t slot_id = s_ctrl->soc_info.index;
+
+    if (!s_ctrl || !i2c_list) {
+        CAM_ERR(CAM_SENSOR, "Invalid parameters for %s", op_type);
+        return;
+    }
+
+    CAM_ERR(CAM_SENSOR, "=== SENSOR SLOT[%d] %s I2C SETTINGS ===",
+            slot_id, op_type);
+    CAM_ERR(CAM_SENSOR, "Slot[%d]: Operation: %d, AddrType: %d, DataType: %d, Size: %d",
+            slot_id,
+            i2c_list->op_code,
+            i2c_list->i2c_settings.addr_type,
+            i2c_list->i2c_settings.data_type,
+            i2c_list->i2c_settings.size);
+
+    for (i = 0; i < i2c_list->i2c_settings.size; i++) {
+        CAM_ERR(CAM_SENSOR,
+            "Slot[%d]: Reg[%d] Addr=0x%x, Data=0x%x, AddrType=%d, DataType=%d, Delay=%d us",
+            slot_id,
+            i,
+            i2c_list->i2c_settings.reg_setting[i].reg_addr,
+            i2c_list->i2c_settings.reg_setting[i].reg_data,
+            i2c_list->i2c_settings.addr_type,
+            i2c_list->i2c_settings.data_type,
+            i2c_list->i2c_settings.reg_setting[i].delay);
+    }
+}
+
 int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 	int64_t req_id, enum cam_sensor_packet_opcodes opcode)
 {
@@ -1275,6 +1309,20 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 		switch (opcode) {
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMON: {
 			i2c_set = &s_ctrl->i2c_data.streamon_settings;
+	            if (i2c_set->is_settings_valid == 1) {
+	                CAM_ERR(CAM_SENSOR, "<streamOnSettings>");
+	                list_for_each_entry(i2c_list, &(i2c_set->list_head), list) {
+	                    cam_sensor_print_i2c_settings(s_ctrl, i2c_list, "STREAMON");
+
+	                    rc = cam_sensor_i2c_modes_util(&(s_ctrl->io_master_info), i2c_list);
+	                    if (rc < 0) {
+	                        CAM_ERR(CAM_SENSOR, "Slot[%d] Streamon failed: %d",
+	                                s_ctrl->soc_info.index, rc);
+	                        return rc;
+	                    }
+	                }
+	                CAM_ERR(CAM_SENSOR, "</streamOnSettings>");
+	            }
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG: {
@@ -1287,6 +1335,20 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMOFF: {
 			i2c_set = &s_ctrl->i2c_data.streamoff_settings;
+	            if (i2c_set->is_settings_valid == 1) {
+	                CAM_ERR(CAM_SENSOR, "<streamOffSettings>");
+	                list_for_each_entry(i2c_list, &(i2c_set->list_head), list) {
+	                    cam_sensor_print_i2c_settings(s_ctrl, i2c_list, "STREAMOFF");
+
+	                    rc = cam_sensor_i2c_modes_util(&(s_ctrl->io_master_info), i2c_list);
+	                    if (rc < 0) {
+	                        CAM_ERR(CAM_SENSOR, "Slot[%d] Streamoff failed: %d",
+	                                s_ctrl->soc_info.index, rc);
+	                        return rc;
+	                    }
+	                }
+		                CAM_ERR(CAM_SENSOR, "</streamOffSettings>");
+	            }
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE:
