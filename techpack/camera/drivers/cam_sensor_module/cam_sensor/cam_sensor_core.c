@@ -666,39 +666,39 @@ static const char* cam_sensor_get_opcode_string(uint32_t op_code)
 }
 
 static void cam_sensor_print_i2c_settings_xml(struct cam_sensor_ctrl_t *s_ctrl,
-                                             struct i2c_settings_list *i2c_list, 
+                                             struct i2c_settings_list *i2c_list,
                                              const char *settings_type)
 {
     int i;
     uint32_t slot_id = s_ctrl->soc_info.index;
-    
+
     if (!s_ctrl || !i2c_list) {
         CAM_ERR(CAM_SENSOR, "Invalid parameters for %s", settings_type);
         return;
     }
 
     // Print opening tag
-    CAM_ERR(CAM_SENSOR, "<%s>", settings_type);
-    
+    CAM_INFO(CAM_SENSOR, "<%s>", settings_type);
+
     for (i = 0; i < i2c_list->i2c_settings.size; i++) {
-        CAM_ERR(CAM_SENSOR, "<regSetting>");
-        CAM_ERR(CAM_SENSOR, "<registerAddr>0x%x</registerAddr>",
+        CAM_INFO(CAM_SENSOR, "<regSetting>");
+        CAM_INFO(CAM_SENSOR, "<registerAddr>0x%x</registerAddr>",
                 i2c_list->i2c_settings.reg_setting[i].reg_addr);
-        CAM_ERR(CAM_SENSOR, "<registerData>0x%x</registerData>",
+        CAM_INFO(CAM_SENSOR, "<registerData>0x%x</registerData>",
                 i2c_list->i2c_settings.reg_setting[i].reg_data);
-        CAM_ERR(CAM_SENSOR, "<regAddrType range=\"[1,4]\">%d</regAddrType>",
+        CAM_INFO(CAM_SENSOR, "<regAddrType range=\"[1,4]\">%d</regAddrType>",
                 i2c_list->i2c_settings.addr_type);
-        CAM_ERR(CAM_SENSOR, "<regDataType range=\"[1,4]\">%d</regDataType>",
+        CAM_INFO(CAM_SENSOR, "<regDataType range=\"[1,4]\">%d</regDataType>",
                 i2c_list->i2c_settings.data_type);
-        CAM_ERR(CAM_SENSOR, "<operation>%s</operation>",
+        CAM_INFO(CAM_SENSOR, "<operation>%s</operation>",
                 cam_sensor_get_opcode_string(i2c_list->op_code));
-        CAM_ERR(CAM_SENSOR, "<delayUs>%d</delayUs>",
+        CAM_INFO(CAM_SENSOR, "<delayUs>%d</delayUs>",
                 i2c_list->i2c_settings.reg_setting[i].delay);
-        CAM_ERR(CAM_SENSOR, "</regSetting>");
+        CAM_INFO(CAM_SENSOR, "</regSetting>");
     }
 
     // Print closing tag
-    CAM_ERR(CAM_SENSOR, "</%s>", settings_type);
+    CAM_INFO(CAM_SENSOR, "</%s>", settings_type);
 }
 
 static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl)
@@ -707,23 +707,25 @@ static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl
     uint32_t slot_id = s_ctrl->soc_info.index;
     struct i2c_settings_list *i2c_list;
 
-    CAM_ERR(CAM_SENSOR, "==================================================");
-    CAM_ERR(CAM_SENSOR, "=== COMPLETE I2C DATA DUMP FOR SENSOR SLOT[%d] ===", slot_id);
-    CAM_ERR(CAM_SENSOR, "==================================================");
+    CAM_INFO(CAM_SENSOR, "==================================================");
+    CAM_INFO(CAM_SENSOR, "=== COMPLETE I2C DATA DUMP FOR SENSOR SLOT[%d] ===", slot_id);
+    CAM_INFO(CAM_SENSOR, "==================================================");
 
+#if 0
     // 1. Init Settings
     if (s_ctrl->i2c_data.init_settings.is_settings_valid == 1) {
-        CAM_ERR(CAM_SENSOR, "// INIT_SETTINGS - valid=%d, request_id=%lld",
+        CAM_INFO(CAM_SENSOR, "// INIT_SETTINGS - valid=%d, request_id=%lld",
                 s_ctrl->i2c_data.init_settings.is_settings_valid,
                 s_ctrl->i2c_data.init_settings.request_id);
         list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.init_settings.list_head), list) {
             cam_sensor_print_i2c_settings_xml(s_ctrl, i2c_list, "initSettings");
         }
     }
+#endif
 
     // 2. Config Settings
     if (s_ctrl->i2c_data.config_settings.is_settings_valid == 1) {
-        CAM_ERR(CAM_SENSOR, "// CONFIG_SETTINGS - valid=%d, request_id=%lld",
+        CAM_INFO(CAM_SENSOR, "// CONFIG_SETTINGS - valid=%d, request_id=%lld",
                 s_ctrl->i2c_data.config_settings.is_settings_valid,
                 s_ctrl->i2c_data.config_settings.request_id);
         list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.config_settings.list_head), list) {
@@ -731,9 +733,10 @@ static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl
         }
     }
 
+#if 0
     // 3. StreamOn Settings
     if (s_ctrl->i2c_data.streamon_settings.is_settings_valid == 1) {
-        CAM_ERR(CAM_SENSOR, "// STREAMON_SETTINGS - valid=%d, request_id=%lld",
+        CAM_INFO(CAM_SENSOR, "// STREAMON_SETTINGS - valid=%d, request_id=%lld",
                 s_ctrl->i2c_data.streamon_settings.is_settings_valid,
                 s_ctrl->i2c_data.streamon_settings.request_id);
         list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.streamon_settings.list_head), list) {
@@ -743,17 +746,18 @@ static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl
 
     // 4. StreamOff Settings
     if (s_ctrl->i2c_data.streamoff_settings.is_settings_valid == 1) {
-        CAM_ERR(CAM_SENSOR, "// STREAMOFF_SETTINGS - valid=%d, request_id=%lld",
+        CAM_INFO(CAM_SENSOR, "// STREAMOFF_SETTINGS - valid=%d, request_id=%lld",
                 s_ctrl->i2c_data.streamoff_settings.is_settings_valid,
                 s_ctrl->i2c_data.streamoff_settings.request_id);
         list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.streamoff_settings.list_head), list) {
             cam_sensor_print_i2c_settings_xml(s_ctrl, i2c_list, "streamOffSettings");
         }
     }
+#endif
 
     // 5. Read Settings
     if (s_ctrl->i2c_data.read_settings.is_settings_valid == 1) {
-        CAM_ERR(CAM_SENSOR, "// READ_SETTINGS - valid=%d, request_id=%lld",
+        CAM_INFO(CAM_SENSOR, "// READ_SETTINGS - valid=%d, request_id=%lld",
                 s_ctrl->i2c_data.read_settings.is_settings_valid,
                 s_ctrl->i2c_data.read_settings.request_id);
         list_for_each_entry(i2c_list, &(s_ctrl->i2c_data.read_settings.list_head), list) {
@@ -762,7 +766,7 @@ static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl
     }
 
     // 6. Per-Frame Settings (most important for group hold!)
-    CAM_ERR(CAM_SENSOR, "// PER_FRAME_SETTINGS");
+    CAM_INFO(CAM_SENSOR, "// PER_FRAME_SETTINGS");
     if (s_ctrl->i2c_data.per_frame != NULL) {
         for (i = 0; i < MAX_PER_FRAME_ARRAY; i++) {
             if (s_ctrl->i2c_data.per_frame[i].is_settings_valid == 1) {
@@ -780,55 +784,7 @@ static void cam_sensor_print_all_i2c_arrays_xml(struct cam_sensor_ctrl_t *s_ctrl
         }
     }
 
-    CAM_ERR(CAM_SENSOR, "==================================================");
-}
-
-static void cam_sensor_find_group_hold_xml(struct cam_sensor_ctrl_t *s_ctrl)
-{
-    int i, j;
-    uint32_t slot_id = s_ctrl->soc_info.index;
-    struct i2c_settings_list *i2c_list;
-
-    CAM_ERR(CAM_SENSOR, "=== SEARCHING FOR GROUP HOLD (0x0104) IN XML FORMAT ===");
-
-    // Check all main arrays
-    struct {
-        const char *name;
-        struct i2c_settings_array *array;
-    } arrays[] = {
-        {"initSettings", &s_ctrl->i2c_data.init_settings},
-        {"configSettings", &s_ctrl->i2c_data.config_settings},
-        {"streamOnSettings", &s_ctrl->i2c_data.streamon_settings},
-        {"streamOffSettings", &s_ctrl->i2c_data.streamoff_settings},
-    };
-
-    for (i = 0; i < ARRAY_SIZE(arrays); i++) {
-        if (arrays[i].array->is_settings_valid == 1) {
-            list_for_each_entry(i2c_list, &(arrays[i].array->list_head), list) {
-                for (j = 0; j < i2c_list->i2c_settings.size; j++) {
-                    if (i2c_list->i2c_settings.reg_setting[j].reg_addr == 0x0104) {
-                        CAM_ERR(CAM_SENSOR, "// FOUND GROUP HOLD in %s:", arrays[i].name);
-                        CAM_ERR(CAM_SENSOR, "<groupHoldSettings>");
-                        CAM_ERR(CAM_SENSOR, "<regSetting>");
-                        CAM_ERR(CAM_SENSOR, "<registerAddr>0x%x</registerAddr>",
-                                i2c_list->i2c_settings.reg_setting[j].reg_addr);
-                        CAM_ERR(CAM_SENSOR, "<registerData>0x%x</registerData>",
-                                i2c_list->i2c_settings.reg_setting[j].reg_data);
-                        CAM_ERR(CAM_SENSOR, "<regAddrType range=\"[1,4]\">%d</regAddrType>",
-                                i2c_list->i2c_settings.addr_type);
-                        CAM_ERR(CAM_SENSOR, "<regDataType range=\"[1,4]\">%d</regDataType>",
-                                i2c_list->i2c_settings.data_type);
-                        CAM_ERR(CAM_SENSOR, "<operation>%s</operation>",
-                                cam_sensor_get_opcode_string(i2c_list->op_code));
-                        CAM_ERR(CAM_SENSOR, "<delayUs>%d</delayUs>",
-                                i2c_list->i2c_settings.reg_setting[j].delay);
-                        CAM_ERR(CAM_SENSOR, "</regSetting>");
-                        CAM_ERR(CAM_SENSOR, "</groupHoldSettings>");
-                    }
-                }
-            }
-        }
-    }
+    CAM_INFO(CAM_SENSOR, "==================================================");
 }
 
 int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
@@ -1387,18 +1343,22 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 		switch (opcode) {
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMON: {
 			i2c_set = &s_ctrl->i2c_data.streamon_settings;
+		#if 0
 	            	if (i2c_set->is_settings_valid == 1) {
 	                	CAM_INFO(CAM_SENSOR, "=== APPLYING STREAMON SETTINGS ===");
 	                	cam_sensor_print_all_i2c_arrays_xml(s_ctrl);
 				}
+		#endif
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG: {
 			i2c_set = &s_ctrl->i2c_data.init_settings;
+		#if 0
 	                if (i2c_set->is_settings_valid == 1) {
 	                        CAM_INFO(CAM_SENSOR, "=== APPLYING INIT SETTINGS ===");
 	                        cam_sensor_print_all_i2c_arrays_xml(s_ctrl);
 	                        }
+		#endif
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_CONFIG: {
@@ -1406,16 +1366,17 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 	                if (i2c_set->is_settings_valid == 1) {
 	                        CAM_INFO(CAM_SENSOR, "=== APPLYING CONFIG SETTINGS ===");
 	                        cam_sensor_print_all_i2c_arrays_xml(s_ctrl);
-				cam_sensor_find_group_hold_xml(s_ctrl);
 	                        }
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMOFF: {
 			i2c_set = &s_ctrl->i2c_data.streamoff_settings;
+		#if 0
 	                if (i2c_set->is_settings_valid == 1) {
 	                        CAM_INFO(CAM_SENSOR, "=== APPLYING STREAMOFF SETTINGS ===");
 	                        cam_sensor_print_all_i2c_arrays_xml(s_ctrl);
 	                        }
+		#endif
 			break;
 		}
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE:
