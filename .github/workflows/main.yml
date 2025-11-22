@@ -15,18 +15,18 @@ jobs:
       contents: read
 
     steps:
-      - name: Build Kernel spes 4.19 ksun-susfs
+      - name: Build Kernel spes 4.19 
         uses: dabao1955/kernel_build_action@main
         with:
           kernel-url: https://github.com/staciamarchxix/kernel_xiaomi_spes/
           kernel-dir: msm-4.19
-          kernel-branch: main-ksun-susfs-test
+          kernel-branch: main
           config: vendor/spes-perf_defconfig
           arch: arm64
           aosp-gcc: true
           aosp-clang: true
           ksu-other: true
-          ksu-url: https://github.com/SukiSU-Ultra/SukiSU-Ultra/tree/susfs-test
+          ksu-url: https://github.com/SukiSU-Ultra/SukiSU-Ultra
           aosp-clang-version: r547379
           anykernel3: true
           anykernel3-url: https://github.com/muralivijay/AnyKernel3
