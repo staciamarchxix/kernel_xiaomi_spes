@@ -20,13 +20,13 @@ jobs:
         with:
           kernel-url: https://github.com/staciamarchxix/kernel_xiaomi_spes/
           kernel-dir: msm-4.19
-          kernel-branch: main
+          kernel-branch: main-ksun-susfs-test
           config: vendor/spes-perf_defconfig
           arch: arm64
           aosp-gcc: true
           aosp-clang: true
           ksu-other: true
-          ksu-url: https://github.com/SukiSU-Ultra/SukiSU-Ultra
+          ksu-url: https://github.com/SukiSU-Ultra/SukiSU-Ultra/tree/susfs-test
           aosp-clang-version: r547379
           anykernel3: true
           anykernel3-url: https://github.com/muralivijay/AnyKernel3
